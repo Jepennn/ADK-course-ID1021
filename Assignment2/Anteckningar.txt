@@ -1,0 +1,26 @@
+ 
+
+
+#Does the pointer point to the location above the top of the stack or
+does it point to the top of the stack?
+
+-???????????????
+
+ 
+#What is the value of the pointer when the stack is empty?
+The value of the pointer is -1 to indicate that the stack is empty
+
+Här ska jag ändra top till noll istället och sätta jämföra med stack.length bara.
+(Blir tydligare i koden)
+
+
+#What should you do when a program tries to push a value on a full
+stack (stack overflow)?
+
+-We print to the user that the stack i full and exit the program
+ 
+
+#What should happen when someone pops an item from an empty
+stack?
+
+- We print to the console that the stack is empty and exit the program.
