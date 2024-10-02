@@ -1,6 +1,16 @@
-class LinkedList {
+
+public class LinkedList {
 
     Cell first;
+
+    // Konstruktor för att skapa en ny länkad lista av storlek n
+    public LinkedList(int n) {
+        Cell last = null;
+        for (int i = 0; i < n; i++) {
+            last = new Cell(i, last);
+        }
+        first = last;
+    }
 
     // Våra cell objekt som våran lista består av
     private class Cell {
@@ -14,14 +24,8 @@ class LinkedList {
         }
     }
 
-    public void Add(int item) {
-        // If Linked list is emty we dont need a temp variabel
-        if (first == null) {
-            first = new Cell(item, null);
-        } else {
-            Cell temp = first;
-            first = new Cell(item, temp);
-        }
+    public void add(int item) {
+        first = new Cell(item, first);
     }
 
     public int length() {
@@ -42,48 +46,59 @@ class LinkedList {
     }
 
     public boolean find(int item) {
-
-        // Vi antar att värdet inte finns
-        boolean exists = false;
-
-        // Skapar en copy av first så vi inte manipulerar våran "riktiga linked list"
+        // Skapar en pekar som vi kan flytta mellan våra noder
         Cell current = first;
-        // Kör igenom våra lista och kollar om någon cell är lika med värdet vi söker
-        while (current != null && !exists) {
 
+        // Går igenom hela vår lista
+        while (current != null) {
             if (current.head == item) {
-                exists = true;
+                return true;
             }
             current = current.tail;
         }
-        return exists;
+        // Når vi hit vet vi att värdet inte existerar
+        return false;
     }
 
     public void remove(int item) {
+
+        // Kontrollerar om vi har flera celler med samma värde i början av listan
+        while (first != null && first.head == item) {
+            first = first.tail;
+        }
 
         // Om listan är tom så finns det inget att ta bort
         if (first == null) {
             return;
         }
 
-        // Om första cellen är den vi vill ta bort
-        if (first.head == item) {
-            first = first.tail;
-            return;
-        }
-
-        // Skapar en copy av first så vi inte manipulerar våran "riktiga linked list"
         Cell current = first;
-        // Kollar om nästa cell är den vi vill ta bort
         while (current.tail != null) {
             if (current.tail.head == item) {
                 current.tail = current.tail.tail;
-                return;
+            } else {
+                current = current.tail;
             }
-            current = current.tail;
         }
     }
 
+    // Method to add list to the end
+    public void append(LinkedList b) {
+
+        // Hanterar om list A är tom
+        if (this.first == null) {
+            this.first = b.first;
+            b.first = null;
+            return;
+        }
+
+        Cell current = this.first;
+        while (current.tail != null) {
+            current = current.tail;
+        }
+        current.tail = b.first;
+        b.first = null;
+    }
 }
 
 // We can now add methods to for example add another integer to the
