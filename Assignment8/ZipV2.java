@@ -1,31 +1,34 @@
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class Zip {
+public class ZipV2 {
     Area[] postnr;
     int max = 10000;
 
-    // Intern klass som innehåller data om vårat postnummer
+    /* Intern klass som innehåller data om vårat postnummer */
     public class Area {
-        String zipCode;
+        Integer zipCode;
         String name;
         Integer popu;
 
-        public Area(String zip, String name, Integer population) {
+        public Area(Integer zip, String name, Integer population) {
             this.zipCode = zip;
             this.name = name;
             this.popu = population;
         }
     }
+    /*----------------------------------------------------------------------------------*/
 
-    public Zip(String file) {
+    public ZipV2(String file) {
         this.postnr = new Area[this.max];
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             int i = 0;
             while ((line = br.readLine()) != null && i < this.max) {
                 String[] row = line.split(",");
-                postnr[i++] = new Area(row[0], row[1], Integer.valueOf(row[2]));
+                Integer code = Integer.valueOf(row[0].replaceAll("\\s", ""));
+                postnr[i++] = new Area(code, row[1], Integer.valueOf(row[2]));
             }
             this.max = i;
         } catch (Exception e) {
@@ -33,8 +36,9 @@ public class Zip {
         }
     }
 
+    /*------------------------------Våra två sökmetoder-------------------------------------------- */
     // Linjär sökningsmetoden
-    public boolean lockUp(String zip) {
+    public boolean lockUp(Integer zip) {
 
         for (int i = 0; i < postnr.length; i++) {
             if (postnr[i] != null && postnr[i].zipCode.equals(zip)) {
@@ -45,23 +49,18 @@ public class Zip {
     }
 
     // Binär sökning i våran array av postnummer, där zipkoden är en sträng
-    public boolean binarySearch(String zip) {
+    public boolean binarySearch(Integer zip) {
 
         int first = 0;
-        int last = 9675 - 1; // Totala antalet postnummer - 1, dä index startar på noll,
-
-        // Gör om postnummret vi söker till en Int
-        int zipNum = Integer.parseInt(zip.replace(" ", ""));
+        int last = this.max;
 
         while (first <= last) {
             int mid = first + ((last - first) / 2);
 
-            Integer zCode = Integer.parseInt(postnr[mid].zipCode.replace(" ", ""));
-
             if (postnr[mid] != null && postnr[mid].zipCode.equals(zip)) {
                 return true;
 
-            } else if (postnr[mid] != null && zCode < zipNum) {
+            } else if (postnr[mid] != null && postnr[mid].zipCode < zip) {
                 first = mid + 1;
             } else {
                 last = mid - 1;
@@ -70,9 +69,32 @@ public class Zip {
         }
         return false;
     }
+    /*---------------------------------------------------------------------------------------- */
 
-    // En liten enkel benchmark för att jämföra linjär och binär sökning
-    public void benchmark(String zip) {
+    public void collisions(int mod) {
+
+        int mx = 20;
+        int[] data = new int[mod];
+        int[] cols = new int[mx];
+
+        // postnr[] are the zip codes
+        for (int i = 0; i < max; i++) {
+            Integer index = postnr[i].zipCode % mod;
+            data[index]++;
+        }
+        for (int i = 0; i < mod; i++) {
+            if (data[i] < mx) {
+                cols[data[i]]++;
+            }
+        }
+        System.out.print(mod + ": ");
+        for (int i = 1; i < mx; i++) {
+            System.out.print("\t" + cols[i]);
+        }
+        System.out.println();
+    }
+
+    public void benchmark(Integer zip) {
         long startTime = System.nanoTime();
         lockUp(zip);
         long endTime = System.nanoTime();
@@ -88,13 +110,18 @@ public class Zip {
 
     public static void main(String[] args) {
 
-        Zip z = new Zip("postnummer.csv");
+        ZipV2 zip = new ZipV2("postnummer.csv");
 
-        String nr = "169 68";
+        Integer num = 16968;
 
-        System.out.println(z.lockUp(nr));
-        System.out.println(z.binarySearch(nr));
-        z.benchmark(nr);
+        System.out.println(zip.lockUp(num));
+        System.out.println(zip.binarySearch(num));
+        zip.benchmark(num);
+
+        // zip.collisions(13513);
+        // zip.collisions(13600);
+        // zip.collisions(14000);
+        // zip.collisions(20011);
 
     }
 }
